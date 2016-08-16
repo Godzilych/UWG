@@ -4,9 +4,11 @@ using System.Collections;
 public class SubmarineController : MonoBehaviour {
 
     float enginePower=5000;
-    float maxSteerAngle;
+    float maxSteerAngle = 30;
+    float steerPower = 500;
     float rotationSpeed = 45; // angle per sec
     float dirRot;
+    Transform steer;
     Rigidbody rb;
 
 	// Use this for initialization
@@ -14,52 +16,35 @@ public class SubmarineController : MonoBehaviour {
     {
         rb = this.GetComponent<Rigidbody>();
         dirRot = transform.rotation.y;
-
-	
+        steer = transform.Find("vSteer");
 	}
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    void Update()
     {
-        
-        if(Input.GetButtonDown("Jump"))
+
+        if (Input.GetButtonDown("Jump"))
         {
             dirRot = dirRot + 180;
-            //StopCoroutine("RotateCorutine");
-            //StartCoroutine(RotateCorutine(dirRot));
         }
         rb.MoveRotation(Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, dirRot, 0), Time.deltaTime * 180 / rotationSpeed));
 
-        if (Input.GetAxis("Horizontal") !=0)
+        if (Input.GetAxis("Horizontal") != 0)
         {
-            Vector3 dir = new Vector3(Input.GetAxis("Horizontal") * enginePower,0,0);
+            Vector3 dir = new Vector3(Input.GetAxis("Horizontal") * enginePower, 0, 0);
             rb.AddForce(dir * Time.deltaTime);
-            Debug.Log(rb.velocity);
+            
+            //Debug.Log(rb.velocity);
         }
-    }
-    /*
-    IEnumerator RotateCorutine( float target)
-    {
-        Quaternion tAngle;
-        Debug.Log("pos:" + transform.rotation.y +"target:" + target);
-        while(transform.rotation.y != target)
+
+        if (Input.GetAxis("Vertical") != 0)
         {
-            tAngle = Quaternion.Euler(0, target,0);
-            rb.MoveRotation(Quaternion.Lerp(transform.rotation, tAngle, Time.deltaTime * rotationSpeed ));
+            Vector3 dir = new Vector3(0,Input.GetAxis("Vertical") * steerPower * rb.velocity.magnitude,0);
+            rb.AddForce(dir * Time.deltaTime);
+            steer.localRotation = Quaternion.Euler(0, 0, Input.GetAxis("Vertical") * maxSteerAngle);
 
-            Debug.Log(tAngle);
-
-            yield return null;
+            Debug.Log(dir);
         }
-    }
-    */
 
-    void Rotation()
-    {
-        float t = 0;
-        while (t < rotationSpeed)
-            {
-
-            }
     }
 }
